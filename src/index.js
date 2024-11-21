@@ -1,3 +1,11 @@
+import "./pages/index.css";
+import { initialCards } from "./cards.js";
+import avatarImage from "./images/avatar.jpg";
+
+document.querySelector(
+  ".profile__image"
+).style.backgroundImage = `url(${avatarImage})`;
+
 // @todo: Темплейт карточки/Получение щаблона
 const cardTemplate = document.querySelector("#card-template").content;
 
