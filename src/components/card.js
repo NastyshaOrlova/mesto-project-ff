@@ -37,55 +37,28 @@ function createCard(
   }
 
   cardImage.addEventListener("click", () => handleImageClick(cardData));
-  likeButton.addEventListener("click", () =>
-    likeCard(likeButton, cardData._id)
-  );
+  likeButton.addEventListener("click", () => {
+    const method = likeButton.classList.contains("card__like-button_is-active")
+      ? "DELETE"
+      : "PUT";
+
+    likeCard(cardData._id, method)
+      .then((data) => {
+        likeButton.classList.toggle("card__like-button_is-active");
+        const likeCount = likeButton
+          .closest(".card")
+          .querySelector(".card__like-count");
+
+        if (data.likes.length > 0) {
+          likeCount.textContent = data.likes.length;
+          likeCount.classList.remove("card__like-count_hidden");
+        } else {
+          likeCount.classList.add("card__like-count_hidden");
+        }
+      })
+      .catch((err) => console.error(`Ошибка: ${err}`));
+  });
   return cardElement;
 }
 
-function deleteCard(cardElement, cardId) {
-  return fetch(`https://nomoreparties.co/v1/wff-cohort-29/cards/${cardId}`, {
-    method: "DELETE",
-    headers: {
-      authorization: "b6d14234-5726-490a-87eb-f980b45c2dd9",
-    },
-  }).then((res) => {
-    if (res.ok) {
-      cardElement.remove();
-    }
-  });
-}
-
-function likeCard(likeButton, cardId) {
-  const method = likeButton.classList.contains("card__like-button_is-active")
-    ? "DELETE"
-    : "PUT";
-
-  return fetch(
-    `https://nomoreparties.co/v1/wff-cohort-29/cards/likes/${cardId}`,
-    {
-      method: method,
-      headers: {
-        authorization: "b6d14234-5726-490a-87eb-f980b45c2dd9",
-        "Content-Type": "application/json",
-      },
-    }
-  )
-    .then((res) => res.json())
-    .then((data) => {
-      likeButton.classList.toggle("card__like-button_is-active");
-
-      const likeCount = likeButton
-        .closest(".card")
-        .querySelector(".card__like-count");
-
-      if (data.likes.length > 0) {
-        likeCount.textContent = data.likes.length;
-        likeCount.classList.remove("card__like-count_hidden");
-      } else {
-        likeCount.classList.add("card__like-count_hidden");
-      }
-    });
-}
-
-export { createCard, deleteCard, likeCard };
+export { createCard };

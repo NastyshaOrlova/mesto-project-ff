@@ -51,4 +51,26 @@ function getUserInfo() {
   }).then(checkResponse);
 }
 
-export { getInitialCards, updateAvatar, updateUserInfo, addCard, getUserInfo };
+function deleteCard(cardId) {
+  return fetch(`${config.baseUrl}/cards/${cardId}`, {
+    method: "DELETE",
+    headers: config.headers,
+  }).then(checkResponse);
+}
+
+function likeCard(cardId, method) {
+  return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
+    method: method,
+    headers: config.headers,
+  }).then(checkResponse);
+}
+
+export {
+  getInitialCards,
+  updateAvatar,
+  updateUserInfo,
+  addCard,
+  getUserInfo,
+  deleteCard,
+  likeCard,
+};

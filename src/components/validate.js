@@ -22,7 +22,13 @@ function showInputError(formElement, inputElement, config) {
     `#${inputElement.name}-input-error`
   );
   inputElement.classList.add(config.inputErrorClass);
-  errorElement.textContent = inputElement.validationMessage;
+  if (inputElement.validity.patternMismatch) {
+    errorElement.textContent =
+      inputElement.dataset.errorPattern || "Не правильный формат";
+  } else {
+    errorElement.textContent = inputElement.validationMessage;
+  }
+
   errorElement.classList.add(config.errorClass);
 }
 

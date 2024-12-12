@@ -1,5 +1,5 @@
 import "./pages/index.css";
-import { createCard, deleteCard, likeCard } from "./components/card.js";
+import { createCard } from "./components/card.js";
 import { openPopup, closePopup, closeByOverlay } from "./components/modal.js";
 import {
   enableValidation,
@@ -11,8 +11,9 @@ import {
   updateUserInfo,
   addCard,
   getUserInfo,
+  deleteCard,
+  likeCard,
 } from "./components/api.js";
-import { handleAvatarFormSubmit } from "./components/avatar.js";
 
 const placesList = document.querySelector(".places__list");
 const imagePopup = document.querySelector(".popup_type_image");
@@ -51,6 +52,25 @@ function renderLoading(
   } else {
     button.textContent = buttonText;
   }
+}
+
+function handleAvatarFormSubmit(evt, avatarInput, avatarPopup, profileAvatar) {
+  evt.preventDefault();
+  const submitButton = evt.submitter;
+
+  renderLoading(true, submitButton);
+
+  return updateAvatar(avatarInput.value)
+    .then((userData) => {
+      profileAvatar.style.backgroundImage = `url(${userData.avatar})`;
+      closePopup(avatarPopup);
+    })
+    .catch((err) => {
+      console.error(`Ошибка: ${err}`);
+    })
+    .finally(() => {
+      renderLoading(false, submitButton);
+    });
 }
 
 function handleDeleteClick(cardElement, cardId) {
@@ -92,6 +112,9 @@ function handleFormEditSubmit(evt) {
       profileJob.textContent = userData.about;
       closePopup(editPopup);
     })
+    .catch((err) => {
+      console.error(`Ошибка: ${err}`);
+    })
     .finally(() => {
       renderLoading(false, submitButton);
     });
@@ -121,6 +144,9 @@ function handleAddCardFormSubmit(evt) {
       toggleButtonState(addCardForm, validationConfig);
       closePopup(addCardPopup);
     })
+    .catch((err) => {
+      console.error(`Ошибка: ${err}`);
+    })
     .finally(() => {
       renderLoading(false, submitButton);
     });
@@ -145,10 +171,15 @@ imagePopup.addEventListener("click", closeByOverlay);
 addCardForm.addEventListener("submit", handleAddCardFormSubmit);
 deleteConfirmButton.addEventListener("click", () => {
   if (cardToDelete) {
-    deleteCard(cardToDelete.element, cardToDelete.id).then(() => {
-      closePopup(deletePopup);
-      cardToDelete = null;
-    });
+    deleteCard(cardToDelete.id)
+      .then(() => {
+        cardToDelete.element.remove();
+        closePopup(deletePopup);
+        cardToDelete = null;
+      })
+      .catch((err) => {
+        console.error(`Ошибка: ${err}`);
+      });
   }
 });
 profileAvatar.addEventListener("click", () => {
@@ -165,10 +196,9 @@ avatarForm.addEventListener("submit", (evt) => {
 });
 
 enableValidation(validationConfig);
-getInitialCards();
 
-Promise.all([getUserInfo(), getInitialCards()]).then(
-  ([userData, initialCards]) => {
+Promise.all([getUserInfo(), getInitialCards()])
+  .then(([userData, initialCards]) => {
     userId = userData._id;
     profileName.textContent = userData.name;
     profileJob.textContent = userData.about;
@@ -183,5 +213,7 @@ Promise.all([getUserInfo(), getInitialCards()]).then(
       );
       placesList.append(card);
     });
-  }
-);
+  })
+  .catch((err) => {
+    console.error(`Ошибка: ${err}`);
+  });
