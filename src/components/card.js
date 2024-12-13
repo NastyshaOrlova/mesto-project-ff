@@ -1,7 +1,7 @@
 function createCard(
   cardData,
   handleDeleteClick,
-  likeCard,
+  handleLikeClick,
   handleImageClick,
   userId
 ) {
@@ -37,27 +37,10 @@ function createCard(
   }
 
   cardImage.addEventListener("click", () => handleImageClick(cardData));
-  likeButton.addEventListener("click", () => {
-    const method = likeButton.classList.contains("card__like-button_is-active")
-      ? "DELETE"
-      : "PUT";
+  likeButton.addEventListener("click", () =>
+    handleLikeClick(cardData._id, likeButton)
+  );
 
-    likeCard(cardData._id, method)
-      .then((data) => {
-        likeButton.classList.toggle("card__like-button_is-active");
-        const likeCount = likeButton
-          .closest(".card")
-          .querySelector(".card__like-count");
-
-        if (data.likes.length > 0) {
-          likeCount.textContent = data.likes.length;
-          likeCount.classList.remove("card__like-count_hidden");
-        } else {
-          likeCount.classList.add("card__like-count_hidden");
-        }
-      })
-      .catch((err) => console.error(`Ошибка: ${err}`));
-  });
   return cardElement;
 }
 

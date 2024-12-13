@@ -58,7 +58,7 @@ function deleteCard(cardId) {
   }).then(checkResponse);
 }
 
-function likeCard(cardId, method) {
+function toggleLikeRequest(cardId, method) {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: method,
     headers: config.headers,
@@ -72,5 +72,5 @@ export {
   addCard,
   getUserInfo,
   deleteCard,
-  likeCard,
+  toggleLikeRequest,
 };

@@ -10,9 +10,10 @@ import {
   getInitialCards,
   updateUserInfo,
   addCard,
+  updateAvatar,
   getUserInfo,
   deleteCard,
-  likeCard,
+  toggleLikeRequest,
 } from "./components/api.js";
 
 const placesList = document.querySelector(".places__list");
@@ -60,7 +61,7 @@ function handleAvatarFormSubmit(evt, avatarInput, avatarPopup, profileAvatar) {
 
   renderLoading(true, submitButton);
 
-  return updateAvatar(avatarInput.value)
+  updateAvatar(avatarInput.value)
     .then((userData) => {
       profileAvatar.style.backgroundImage = `url(${userData.avatar})`;
       closePopup(avatarPopup);
@@ -76,6 +77,27 @@ function handleAvatarFormSubmit(evt, avatarInput, avatarPopup, profileAvatar) {
 function handleDeleteClick(cardElement, cardId) {
   cardToDelete = { element: cardElement, id: cardId };
   openPopup(deletePopup);
+}
+
+function handleLikeClick(cardId, likeButton) {
+  const method = likeButton.classList.contains("card__like-button_is-active")
+    ? "DELETE"
+    : "PUT";
+  toggleLikeRequest(cardId, method)
+    .then((data) => {
+      likeButton.classList.toggle("card__like-button_is-active");
+      const likeCount = likeButton
+        .closest(".card")
+        .querySelector(".card__like-count");
+
+      if (data.likes.length > 0) {
+        likeCount.textContent = data.likes.length;
+        likeCount.classList.remove("card__like-count_hidden");
+      } else {
+        likeCount.classList.add("card__like-count_hidden");
+      }
+    })
+    .catch((err) => console.error(`Ошибка: ${err}`));
 }
 
 const validationConfig = {
@@ -135,7 +157,7 @@ function handleAddCardFormSubmit(evt) {
       const cardElement = createCard(
         newCard,
         handleDeleteClick,
-        likeCard,
+        handleLikeClick,
         handleImageClick,
         userId
       );
@@ -207,7 +229,7 @@ Promise.all([getUserInfo(), getInitialCards()])
       const card = createCard(
         cardData,
         handleDeleteClick,
-        likeCard,
+        handleLikeClick,
         handleImageClick,
         userId
       );
